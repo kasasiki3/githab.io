@@ -11,7 +11,7 @@ var serial = {};
 
   serial.requestPort = function() {
     const filters = [
-      { 'vendorId': 0x2341, 'productId': 0x8036 }, // Arduino Leonardo
+      { 'vendorId': 0x0f0d, 'productId': 0x0092 }, // Arduino Leonardo
       { 'vendorId': 0x2341, 'productId': 0x8037 }, // Arduino Micro
       { 'vendorId': 0x2341, 'productId': 0x804d }, // Arduino/Genuino Zero
       { 'vendorId': 0x2341, 'productId': 0x804e }, // Arduino/Genuino MKR1000
