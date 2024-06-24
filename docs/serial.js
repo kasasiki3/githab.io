@@ -3,16 +3,17 @@ var serial = {};
 (function() {
   'use strict';
 
+  // getPorts関数は、接続されているUSBデバイスのリストを取得し、シリアルポートオブジェクトのリストを返します。
   serial.getPorts = function() {
     return navigator.usb.getDevices().then(devices => {
       return devices.map(device => new serial.Port(device));
     });
   };
 
+  // requestPort関数は、指定されたフィルタに一致するUSBデバイスの選択ダイアログを表示し、選択されたデバイスをシリアルポートオブジェクトとして返します。
   serial.requestPort = function() {
     const filters = [
       { 'vendorId': 0x2341, 'productId': 0x8036 }, // Arduino Leonardo
-    //  { 'vendorId': 0x0f0d, 'productId': 0x0092 },  Arduino Leonardo
       { 'vendorId': 0x2341, 'productId': 0x8037 }, // Arduino Micro
       { 'vendorId': 0x2341, 'productId': 0x804d }, // Arduino/Genuino Zero
       { 'vendorId': 0x2341, 'productId': 0x804e }, // Arduino/Genuino MKR1000
@@ -29,15 +30,17 @@ var serial = {};
     return navigator.usb.requestDevice({ 'filters': filters }).then(
       device => new serial.Port(device)
     );
-  }
-
-  serial.Port = function(device) {
-    this.device_ = device;
-    this.interfaceNumber_ = 2;  // original interface number of WebUSB Arduino demo
-    this.endpointIn_ = 5;       // original in endpoint ID of WebUSB Arduino demo
-    this.endpointOut_ = 4;      // original out endpoint ID of WebUSB Arduino demo
   };
 
+  // Portコンストラクタは、USBデバイスを受け取り、そのデバイスのシリアルポートを初期化します。
+  serial.Port = function(device) {
+    this.device_ = device;
+    this.interfaceNumber_ = 2;  // WebUSB Arduinoデモの元々のインターフェース番号
+    this.endpointIn_ = 5;       // WebUSB Arduinoデモの元々の入力エンドポイントID
+    this.endpointOut_ = 4;      // WebUSB Arduinoデモの元々の出力エンドポイントID
+  };
+
+  // connectメソッドは、デバイスとの接続を確立し、データの受信ループを開始します。
   serial.Port.prototype.connect = function() {
     let readLoop = () => {
       this.device_.transferIn(this.endpointIn_, 64).then(result => {
@@ -58,51 +61,45 @@ var serial = {};
           var configurationInterfaces = this.device_.configuration.interfaces;
           configurationInterfaces.forEach(element => {
             element.alternates.forEach(elementalt => {
-              if (elementalt.interfaceClass==0xff) {
+              if (elementalt.interfaceClass == 0xff) { // ベンダー固有のインターフェースクラス
                 this.interfaceNumber_ = element.interfaceNumber;
                 elementalt.endpoints.forEach(elementendpoint => {
                   if (elementendpoint.direction == "out") {
                     this.endpointOut_ = elementendpoint.endpointNumber;
                   }
-                  if (elementendpoint.direction=="in") {
-                    this.endpointIn_ =elementendpoint.endpointNumber;
+                  if (elementendpoint.direction == "in") {
+                    this.endpointIn_ = elementendpoint.endpointNumber;
                   }
-                })
+                });
               }
-            })
-          })
+            });
+          });
         })
         .then(() => this.device_.claimInterface(this.interfaceNumber_))
         .then(() => this.device_.selectAlternateInterface(this.interfaceNumber_, 0))
-        // The vendor-specific interface provided by a device using this
-        // Arduino library is a copy of the normal Arduino USB CDC-ACM
-        // interface implementation and so reuses some requests defined by
-        // that specification. This request sets the DTR (data terminal
-        // ready) signal high to indicate to the device that the host is
-        // ready to send and receive data.
         .then(() => this.device_.controlTransferOut({
             'requestType': 'class',
             'recipient': 'interface',
             'request': 0x22,
             'value': 0x01,
-            'index': this.interfaceNumber_}))
+            'index': this.interfaceNumber_})) // DTR信号を高に設定し、ホストがデータの送受信の準備ができたことをデバイスに知らせる。
         .then(() => {
           readLoop();
         });
   };
 
+  // disconnectメソッドは、デバイスとの接続を切断します。
   serial.Port.prototype.disconnect = function() {
-    // This request sets the DTR (data terminal ready) signal low to
-    // indicate to the device that the host has disconnected.
     return this.device_.controlTransferOut({
             'requestType': 'class',
             'recipient': 'interface',
             'request': 0x22,
             'value': 0x00,
-            'index': this.interfaceNumber_})
+            'index': this.interfaceNumber_}) // DTR信号を低に設定し、ホストが切断したことをデバイスに知らせる。
         .then(() => this.device_.close());
   };
 
+  // sendメソッドは、デバイスにデータを送信します。
   serial.Port.prototype.send = function(data) {
     return this.device_.transferOut(this.endpointOut_, data);
   };
