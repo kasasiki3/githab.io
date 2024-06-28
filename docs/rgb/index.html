@@ -8,11 +8,82 @@
     <script src="rgb.js"></script>
   </head>
   <body>
+    
+    <h1><b>HIDtaiko感度調節</b></h1>
     <p>
       <button id="connect">Connect</button> <span id="status"></span>
     </p>
-    <input type="range" min="1" max="100" value="0" id="red"/>
-    <input type="range" min="1" max="100" value="0" id="green"/>
-    <input type="range" min="1" max="100" value="0" id="blue"/>
+
+    <div class="slider-container">
+      a0
+      <input type="range" min="1" max="100" value="10" id="dx0"/>
+      <span id="valueDx0" class="slider-value">10</span>
+  </div> 
+  
+  <div class="slider-container">
+    a1
+      <input type="range" min="1" max="100" value="0" id="dx1"/>
+      <span id="valueDx1" class="slider-value">0</span>
+  </div>
+  
+  <div class="slider-container">
+    a2
+      <input type="range" min="1" max="100" value="0" id="dx2"/>
+      <span id="valueDx2" class="slider-value">0</span>
+  </div>
+  
+  <div class="slider-container">
+    a3
+      <input type="range" min="1" max="100" value="0" id="dx3"/>
+      <span id="valueDx3" class="slider-value">0</span>
+  </div>
+
+  <div class="slider-container">
+    A
+    <input type="range" min="1" max="100" value="0" id="dxa"/>
+    <span id="valueDxa" class="slider-value">0</span>
+</div>
+
+<div class="slider-container">
+  B
+  <input type="range" min="1" max="100" value="0" id="dxb"/>
+  <span id="valueDxb" class="slider-value">0</span>
+</div>
+
+<div class="slider-container">
+  C
+  <input type="range" min="1" max="100" value="0" id="dxc"/>
+  <span id="valueDxc" class="slider-value">0</span>
+</div>
+
+<div class="slider-container">
+  P
+  <input type="range" min="1" max="100" value="0" id="dxp"/>
+  <span id="valueDxp" class="slider-value">0</span>
+</div>
+
+  
+  <script>
+  function updateSliderValue(sliderId, valueId) {
+      let slider = document.getElementById(sliderId);
+      let value = document.getElementById(valueId);
+  
+      slider.addEventListener('input', function() {
+          value.textContent = this.value;
+      });
+  
+      // Initialize the value display
+      value.textContent = slider.value;
+  }
+  
+  updateSliderValue('dx0', 'valueDx0');
+  updateSliderValue('dx1', 'valueDx1');
+  updateSliderValue('dx2', 'valueDx2');
+  updateSliderValue('dx3', 'valueDx3');
+  updateSliderValue('dxa', 'valueDxa');
+  updateSliderValue('dxb', 'valueDxb');
+  updateSliderValue('dxc', 'valueDxc');
+  updateSliderValue('dxp', 'valueDxp');
+  </script>
   </body>
 </html>
