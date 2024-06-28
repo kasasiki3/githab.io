@@ -1,14 +1,20 @@
 (function() {
   'use strict';
 
+
   // ページが読み込まれたときに実行する初期化処理
   document.addEventListener('DOMContentLoaded', event => {
     // HTML要素の取得
     let connectButton = document.querySelector("#connect"); // 接続ボタン
     let statusDisplay = document.querySelector('#status'); // ステータス表示
-    let redSlider = document.querySelector('#red'); // 赤色スライダー
-    let greenSlider = document.querySelector('#green'); // 緑色スライダー
-    let blueSlider = document.querySelector('#blue'); // 青色スライダー
+    let Slider0 = document.querySelector('#dx0'); //a0スライダー
+    let Slider1 = document.querySelector('#dx1'); 
+    let Slider2 = document.querySelector('#dx2'); 
+    let Slider3 = document.querySelector('#dx3'); 
+    let Slidera = document.querySelector('#dxa'); 
+    let Sliderb = document.querySelector('#dxb'); 
+    let Sliderc = document.querySelector('#dxc'); 
+    let Sliderp = document.querySelector('#dxp'); 
     let port; // シリアルポート
 
     // シリアルポートに接続する関数
@@ -17,7 +23,7 @@
         statusDisplay.textContent = ''; // ステータス表示をクリア
         connectButton.textContent = 'Disconnect'; // ボタンのテキストを変更
 
-        // データ受信時の処理
+        // データ受信時の処理(デコードしてコンソールに出力)
         port.onReceive = data => {
           let textDecoder = new TextDecoder();
           console.log(textDecoder.decode(data));
@@ -37,18 +43,28 @@
         return;
       }
 
-      let view = new Uint8Array(3);
-      view[0] = parseInt(redSlider.value); // 赤色の値を取得
-      view[1] = parseInt(greenSlider.value); // 緑色の値を取得
-      view[2] = parseInt(blueSlider.value); // 青色の値を取得
+      let view = new Uint8Array(8);
+      view[0] = parseInt(Slider0.value); // a0のスライダーの値を取得
+      view[1] = parseInt(Slider1.value);
+      view[2] = parseInt(Slider2.value); 
+      view[3] = parseInt(Slider3.value); 
+      view[4] = parseInt(Slidera.value); 
+      view[5] = parseInt(Sliderb.value); 
+      view[6] = parseInt(Sliderc.value); 
+      view[7] = parseInt(Sliderp.value); 
       port.send(view); // データをシリアルポートに送信
     };
 
     // スライダーの値が変更されたときに onUpdate 関数を呼び出すイベントリスナーを追加
-    redSlider.addEventListener('input', onUpdate);
-    greenSlider.addEventListener('input', onUpdate);
-    blueSlider.addEventListener('input', onUpdate);
-
+    Slider0.addEventListener('input', onUpdate);
+    Slider1.addEventListener('input', onUpdate);
+    Slider2.addEventListener('input', onUpdate);
+    Slider3.addEventListener('input', onUpdate);
+    Slidera.addEventListener('input', onUpdate);
+    Sliderb.addEventListener('input', onUpdate);
+    Sliderc.addEventListener('input', onUpdate);
+    Sliderp.addEventListener('input', onUpdate);
+    
     // 接続ボタンがクリックされたときの処理
     connectButton.addEventListener('click', function() {
       if (port) {
